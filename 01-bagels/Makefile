@@ -1,6 +1,19 @@
+OS_NAME := $(shell uname -s)
+
 CC = gcc
-CFLAGS = -g -Wall -Wextra -pedantic -I$$RAYLIB_HOME/include
-LDFLAGS = -L$$RAYLIB_HOME/lib -lraylib -lm -lX11
+DB = gdb
+CFLAGS = -g -Wall -Wextra -pedantic -std=c11 -I$$RAYLIB_HOME/include
+LDFLAGS = -L$$RAYLIB_HOME/lib -lraylib
+
+ifeq ($(OS_NAME),Linux)
+	LDFLAGS += -lm -lX11
+endif
+
+ifeq ($(OS_NAME),Darwin)
+	CC = clang
+	DB = lldb
+	LDFLAGS += -framework OpenGL -framework Cocoa -framework IOKit -framework CoreAudio -framework CoreVideo
+endif
 
 all: run
 
@@ -8,7 +21,7 @@ main: bagels.c
 	$(CC) $^ $(CFLAGS) $(LDFLAGS)
 
 debug: main
-	gdb a.out
+	$(DB) a.out
 
 run: main
 	./a.out
